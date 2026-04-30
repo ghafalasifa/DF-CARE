@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DF Care and Connect</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        navy: { 50:'#f0f4fa', 100:'#dce4f5', 200:'#b8c9eb', 300:'#8aa7dc', 400:'#5b82ca', 500:'#1e3a5f', 600:'#172e4a', 700:'#112238', 800:'#0b1625', 900:'#060b13' },
+        accent: { DEFAULT:'#4ca1ff', light:'#7fbdff', dark:'#2b7fd4' }
+      },
+      fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] }
+    }
+  }
+}
+</script>
+  <style>
+html, body { height: 100%; margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+.page { display: none; }
+.page.active { display: block; }
+.nav-item.active { background: rgba(76,161,255,0.15); color: #4ca1ff; }
+.card-hover { transition: all 0.2s; }
+.card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(30,58,95,0.12); }
+.fade-in { animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.toast { position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1e3a5f;color:#fff;padding:12px 24px;border-radius:12px;z-index:9999;animation:fadeIn 0.3s; }
+</style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-navy-50 text-navy-700"><!-- SPLASH / LOGIN -->
+  <div id="loginPage" class="h-full flex items-center justify-center p-4">
+   <div class="bg-white rounded-3xl shadow-xl p-8 w-full max-w-sm text-center fade-in">
+    <div class="w-20 h-20 bg-navy-500 rounded-2xl mx-auto flex items-center justify-center mb-4">
+     <svg width="40" height="40" viewbox="0 0 40 40" fill="none">
+      <circle cx="20" cy="14" r="7" stroke="white" stroke-width="2.5" /><path d="M8 34c0-6.627 5.373-12 12-12s12 5.373 12 12" stroke="white" stroke-width="2.5" stroke-linecap="round" /><path d="M28 10l4 4M28 14l4-4" stroke="#4ca1ff" stroke-width="2" stroke-linecap="round" />
+     </svg>
+    </div>
+    <h1 id="mainTitle" class="text-2xl font-bold text-navy-500 mb-1">DF Care and Connect</h1>
+    <p id="mainSubtitle" class="text-sm text-navy-400 mb-6">Platform BK Digital SMA</p>
+    <div class="space-y-3"><button onclick="login('siswa')" class="w-full py-3 bg-accent text-white rounded-xl font-semibold card-hover">Masuk sebagai Siswa</button> <button onclick="login('guru')" class="w-full py-3 bg-navy-500 text-white rounded-xl font-semibold card-hover">Masuk sebagai Guru BK</button>
+    </div>
+   </div>
+  </div><!-- MAIN APP -->
+  <div id="mainApp" class="h-full hidden flex flex-col"><!-- TOP BAR -->
+   <header class="bg-white shadow-sm px-4 py-3 flex items-center justify-between shrink-0">
+    <div class="flex items-center gap-2">
+     <div class="w-8 h-8 bg-navy-500 rounded-lg flex items-center justify-center">
+      <svg width="18" height="18" viewbox="0 0 40 40" fill="none">
+       <circle cx="20" cy="14" r="7" stroke="white" stroke-width="3" /><path d="M8 34c0-6.627 5.373-12 12-12s12 5.373 12 12" stroke="white" stroke-width="3" stroke-linecap="round" />
+      </svg>
+     </div><span class="font-bold text-navy-500 text-sm">DF Care</span>
+    </div>
+    <div class="flex items-center gap-2"><span id="roleLabel" class="text-xs bg-accent/10 text-accent px-2 py-1 rounded-full font-medium"></span> <button onclick="logout()" class="text-navy-400 hover:text-red-500"><i data-lucide="log-out" style="width:18px;height:18px"></i></button>
+    </div>
+   </header><!-- CONTENT -->
+   <main class="flex-1 overflow-auto p-4 pb-24" id="content"><!-- BERANDA -->
+    <div id="pageBeranda" class="page active fade-in">
+     <div class="bg-gradient-to-br from-navy-500 to-navy-700 rounded-2xl p-6 text-white mb-6">
+      <h2 class="text-xl font-bold mb-1">Halo! 👋</h2>
+      <p class="text-sm opacity-90">Selamat datang di DF Care and Connect. Platform ini membantu kamu mengembangkan kemampuan komunikasi interpersonal.</p>
+     </div>
+     <h3 class="font-semibold text-navy-600 mb-3">Fitur Utama</h3>
+     <div class="grid grid-cols-2 gap-3" id="quickMenu"></div>
+    </div><!-- ADMINISTRASI -->
+    <div id="pageAdmin" class="page fade-in">
+     <h2 class="text-lg font-bold text-navy-600 mb-4">📋 Administrasi BK</h2>
+     <div id="adminContent" class="space-y-3"></div>
+    </div><!-- MATERI -->
+    <div id="pageMateri" class="page fade-in">
+     <h2 class="text-lg font-bold text-navy-600 mb-4">📚 Materi Komunikasi Interpersonal</h2>
+     <div id="materiContent" class="space-y-3"></div>
+    </div><!-- MATERI DETAIL -->
+    <div id="pageMateriDetail" class="page fade-in"><button onclick="showPage('materi')" class="text-accent text-sm font-medium mb-3 flex items-center gap-1"><i data-lucide="arrow-left" style="width:14px;height:14px"></i> Kembali</button>
+     <div id="materiDetailContent"></div>
+    </div><!-- INTERAKTIF -->
+    <div id="pageInteraktif" class="page fade-in">
+     <h2 class="text-lg font-bold text-navy-600 mb-4">💬 Fitur Interaktif</h2>
+     <div id="interaktifContent" class="space-y-4"></div>
+    </div><!-- GAME -->
+    <div id="pageGame" class="page fade-in">
+     <h2 class="text-lg font-bold text-navy-600 mb-4">🎮 Game Edukasi BK</h2>
+     <div id="gameMenu" class="space-y-3"></div>
+    </div><!-- GAME PLAY -->
+    <div id="pageGamePlay" class="page fade-in"><button onclick="showPage('game')" class="text-accent text-sm font-medium mb-3 flex items-center gap-1"><i data-lucide="arrow-left" style="width:14px;height:14px"></i> Kembali</button>
+     <div id="gamePlayContent"></div>
+    </div><!-- JURUSAN -->
+    <div id="pageJurusan" class="page fade-in">
+     <h2 class="text-lg font-bold text-navy-600 mb-4">🎓 Rekomendasi Jurusan</h2>
+     <div id="jurusanContent"></div>
+    </div><!-- KONSELOR -->
+    <div id="pageKonselor" class="page fade-in">
+     <h2 class="text-lg font-bold text-navy-600 mb-4">📞 Hubungi Konselor</h2>
+     <div id="konselorContent"></div>
+    </div>
+   </main><!-- BOTTOM NAV -->
+   <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-navy-100 px-2 py-2 flex justify-around shrink-0" id="bottomNav"><button class="nav-item active flex flex-col items-center px-3 py-1 rounded-xl text-xs" data-page="beranda"><i data-lucide="home" style="width:20px;height:20px"></i><span class="mt-0.5">Beranda</span></button> <button class="nav-item flex flex-col items-center px-3 py-1 rounded-xl text-xs" data-page="materi"><i data-lucide="book-open" style="width:20px;height:20px"></i><span class="mt-0.5">Materi</span></button> <button class="nav-item flex flex-col items-center px-3 py-1 rounded-xl text-xs" data-page="game"><i data-lucide="gamepad-2" style="width:20px;height:20px"></i><span class="mt-0.5">Game</span></button> <button class="nav-item flex flex-col items-center px-3 py-1 rounded-xl text-xs" data-page="konselor"><i data-lucide="message-circle" style="width:20px;height:20px"></i><span class="mt-0.5">Konselor</span></button>
+   </nav>
+  </div>
+  <script>
+// STATE
+let currentRole = '';
+let currentPage = 'beranda';
+
+// CONFIG
+const defaultConfig = {
+  welcome_title: 'DF Care and Connect',
+  welcome_subtitle: 'Platform BK Digital SMA',
+  background_color: '#f0f4fa',
+  surface_color: '#ffffff',
+  text_color: '#1e3a5f',
+  primary_color: '#4ca1ff',
+  secondary_color: '#172e4a'
+};
+
+
+// LOGIN
+function login(role) {
+  currentRole = role;
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('mainApp').classList.remove('hidden');
+  document.getElementById('roleLabel').textContent = role === 'guru' ? '👨‍🏫 Guru BK' : '🎒 Siswa';
+  buildQuickMenu();
+  lucide.createIcons();
+}
+function logout() {
+  document.getElementById('loginPage').classList.remove('hidden');
+  document.getElementById('mainApp').classList.add('hidden');
+  currentRole = '';
+}
+
+// NAVIGATION
+document.getElementById('bottomNav').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-page]');
+  if (btn) showPage(btn.dataset.page);
+});
+
+function showPage(page) {
+  currentPage = page;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page' + page.charAt(0).toUpperCase() + page.slice(1));
+  if (target) { target.classList.add('active'); target.classList.add('fade-in'); }
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navBtn = document.querySelector(`[data-page="${page}"]`);
+  if (navBtn) navBtn.classList.add('active');
+  // Build content
+  if (page === 'admin') buildAdmin();
+  if (page === 'materi') buildMateri();
+  if (page === 'interaktif') buildInteraktif();
+  if (page === 'game') buildGameMenu();
+  if (page === 'jurusan') buildJurusan();
+  if (page === 'konselor') buildKonselor();
+  lucide.createIcons();
+}
+
+// QUICK MENU
+function buildQuickMenu() {
+  const items = [
+    { icon:'book-open', label:'Materi BK', page:'materi', color:'bg-blue-50 text-blue-600' },
+    { icon:'gamepad-2', label:'Game Edukasi', page:'game', color:'bg-purple-50 text-purple-600' },
+    { icon:'message-circle', label:'Interaktif', page:'interaktif', color:'bg-green-50 text-green-600' },
+    { icon:'graduation-cap', label:'Tes Jurusan', page:'jurusan', color:'bg-orange-50 text-orange-600' },
+  ];
+  if (currentRole === 'guru') items.unshift({ icon:'clipboard-list', label:'Administrasi', page:'admin', color:'bg-red-50 text-red-600' });
+  document.getElementById('quickMenu').innerHTML = items.map(i => `
+    <button onclick="showPage('${i.page}')" class="card-hover bg-white rounded-xl p-4 flex flex-col items-center gap-2 shadow-sm">
+      <div class="w-10 h-10 ${i.color} rounded-xl flex items-center justify-center"><i data-lucide="${i.icon}" style="width:20px;height:20px"></i></div>
+      <span class="text-xs font-medium text-navy-600">${i.label}</span>
+    </button>
+  `).join('');
+  lucide.createIcons();
+}
+
+// ADMINISTRASI
+const adminDocs = [
+  { title:'RPL (Rencana Pelaksanaan Layanan)', icon:'file-text' },
+  { title:'Program Tahunan BK', icon:'calendar' },
+  { title:'Program Semester BK', icon:'calendar-days' },
+  { title:'Jurnal Kegiatan BK', icon:'notebook-pen' },
+  { title:'Format Asesmen Siswa', icon:'clipboard-check' },
+  { title:'Data Pelanggaran Siswa', icon:'alert-triangle' },
+  { title:'Catatan Konseling Individu', icon:'user-check' },
+];
+function buildAdmin() {
+  if (currentRole !== 'guru') {
+    document.getElementById('adminContent').innerHTML = '<div class="bg-yellow-50 p-4 rounded-xl text-sm text-yellow-700">⚠️ Halaman ini khusus untuk Guru BK.</div>';
+    return;
+  }
+  document.getElementById('adminContent').innerHTML = adminDocs.map((d,i) => `
+    <div class="bg-white rounded-xl p-4 shadow-sm card-hover cursor-pointer" onclick="openAdminDoc(${i})">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-navy-50 rounded-lg flex items-center justify-center text-navy-500"><i data-lucide="${d.icon}" style="width:18px;height:18px"></i></div>
+        <span class="font-medium text-sm text-navy-600">${d.title}</span>
+        <i data-lucide="chevron-right" style="width:16px;height:16px" class="ml-auto text-navy-300"></i>
+      </div>
+    </div>
+  `).join('');
+}
+function openAdminDoc(idx) {
+  const doc = adminDocs[idx];
+  const fields = getAdminFields(idx);
+  document.getElementById('adminContent').innerHTML = `
+    <button onclick="buildAdmin();lucide.createIcons()" class="text-accent text-sm font-medium mb-3 flex items-center gap-1"><i data-lucide="arrow-left" style="width:14px;height:14px"></i> Kembali</button>
+    <div class="bg-white rounded-xl p-5 shadow-sm">
+      <h3 class="font-bold text-navy-600 mb-4">${doc.title}</h3>
+      <form onsubmit="event.preventDefault();showToast('Dokumen berhasil disimpan! ✅')" class="space-y-3">
+        ${fields.map(f => `<div><label class="text-xs font-medium text-navy-500 block mb-1">${f}</label><input class="w-full border border-navy-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30" placeholder="Isi ${f.toLowerCase()}"></div>`).join('')}
+        <div class="flex gap-2 pt-2">
+          <button type="submit" class="flex-1 bg-accent text-white py-2 rounded-lg text-sm font-semibold">Simpan</button>
+          <button type="button" onclick="showToast('Dokumen diunduh! 📄')" class="flex-1 bg-navy-100 text-navy-600 py-2 rounded-lg text-sm font-semibold">Download</button>
+        </div>
+      </form>
+    </div>`;
+  lucide.createIcons();
+}
+function getAdminFields(idx) {
+  const all = [
+    ['Judul Layanan','Bidang Layanan','Kelas/Semester','Tujuan','Materi','Metode','Waktu','Evaluasi'],
+    ['Tahun Ajaran','Visi BK','Misi BK','Tujuan Program','Sasaran','Strategi Layanan'],
+    ['Semester','Bulan','Jenis Layanan','Sasaran','Pelaksana','Keterangan'],
+    ['Tanggal','Kegiatan','Kelas','Jumlah Siswa','Hasil','Tindak Lanjut'],
+    ['Nama Siswa','Kelas','Aspek Asesmen','Instrumen','Hasil','Rekomendasi'],
+    ['Nama Siswa','Kelas','Jenis Pelanggaran','Tanggal','Tindakan','Catatan'],
+    ['Nama Siswa','Kelas','Masalah','Tanggal Konseling','Pendekatan','Hasil','Tindak Lanjut'],
+  ];
+  return all[idx];
+}
+
+// MATERI
+const materiList = [
+  { title:'Keterbukaan', emoji:'🔓', desc:'Kemampuan membuka diri dan jujur dalam berkomunikasi.', content:'<h4 class="font-bold mb-2">Apa itu Keterbukaan?</h4><p class="mb-3">Keterbukaan berarti bersedia berbagi perasaan, pikiran, dan pendapat secara jujur kepada orang lain tanpa ditutup-tutupi.</p><h4 class="font-bold mb-2">Contoh Kasus:</h4><div class="bg-blue-50 p-3 rounded-lg text-sm mb-3">Andi merasa tidak nyaman saat teman-temannya membicarakan orang lain. Alih-alih diam saja, Andi berkata: "Teman-teman, aku merasa kurang nyaman kalau kita membicarakan orang lain di belakang. Bagaimana kalau kita bicara langsung?"</div><h4 class="font-bold mb-2">Tips Praktis:</h4><ul class="list-disc pl-5 text-sm space-y-1"><li>Mulai dengan hal kecil yang kamu rasakan</li><li>Gunakan kalimat "Aku merasa..." bukan "Kamu selalu..."</li><li>Pilih waktu dan tempat yang tepat</li></ul>' },
+  { title:'Empati', emoji:'❤️', desc:'Kemampuan memahami dan merasakan apa yang orang lain rasakan.', content:'<h4 class="font-bold mb-2">Apa itu Empati?</h4><p class="mb-3">Empati adalah kemampuan untuk menempatkan diri pada posisi orang lain, memahami perasaan dan sudut pandang mereka.</p><h4 class="font-bold mb-2">Contoh Kasus:</h4><div class="bg-blue-50 p-3 rounded-lg text-sm mb-3">Rina terlihat murung di kelas. Alih-alih mengabaikannya, Siti mendekati dan berkata: "Rin, aku perhatiin kamu kelihatan sedih hari ini. Kalau mau cerita, aku siap dengerin ya."</div><h4 class="font-bold mb-2">Cara Melatih Empati:</h4><ul class="list-disc pl-5 text-sm space-y-1"><li>Dengarkan tanpa menyela</li><li>Perhatikan bahasa tubuh orang lain</li><li>Tanyakan bagaimana perasaan mereka</li><li>Jangan langsung menghakimi</li></ul>' },
+  { title:'Sikap Mendukung', emoji:'🤝', desc:'Memberikan dukungan dan semangat kepada orang lain.', content:'<h4 class="font-bold mb-2">Apa itu Sikap Mendukung?</h4><p class="mb-3">Sikap mendukung berarti memberikan respons positif yang membuat orang lain merasa dihargai dan didorong untuk terus berkembang.</p><h4 class="font-bold mb-2">Contoh Kasus:</h4><div class="bg-blue-50 p-3 rounded-lg text-sm mb-3">Budi gagal dalam lomba debat. Temannya Doni berkata: "Bud, aku salut kamu berani tampil. Persiapanmu sudah bagus, next time pasti lebih baik lagi. Mau latihan bareng?"</div><h4 class="font-bold mb-2">Bentuk Dukungan:</h4><ul class="list-disc pl-5 text-sm space-y-1"><li>Berikan pujian yang tulus dan spesifik</li><li>Tawarkan bantuan konkret</li><li>Tunjukkan bahwa kamu percaya pada kemampuan mereka</li></ul>' },
+  { title:'Sikap Positif', emoji:'✨', desc:'Memandang diri sendiri dan orang lain secara positif.', content:'<h4 class="font-bold mb-2">Apa itu Sikap Positif?</h4><p class="mb-3">Sikap positif dalam komunikasi berarti memandang interaksi dengan optimis, menghargai orang lain, dan menunjukkan penghargaan.</p><h4 class="font-bold mb-2">Contoh Kasus:</h4><div class="bg-blue-50 p-3 rounded-lg text-sm mb-3">Saat kerja kelompok, Maya selalu mengawali dengan: "Oke teman-teman, kita pasti bisa selesaikan ini dengan baik! Setiap ide yang kalian punya pasti berharga."</div><h4 class="font-bold mb-2">Praktik Sikap Positif:</h4><ul class="list-disc pl-5 text-sm space-y-1"><li>Fokus pada solusi, bukan masalah</li><li>Apresiasi usaha orang lain</li><li>Hindari kritik yang menjatuhkan</li></ul>' },
+  { title:'Kesetaraan', emoji:'⚖️', desc:'Memperlakukan semua orang dengan setara tanpa membeda-bedakan.', content:'<h4 class="font-bold mb-2">Apa itu Kesetaraan?</h4><p class="mb-3">Kesetaraan berarti berkomunikasi tanpa membeda-bedakan status sosial, latar belakang, atau kemampuan seseorang. Semua orang punya hak yang sama untuk didengar.</p><h4 class="font-bold mb-2">Contoh Kasus:</h4><div class="bg-blue-50 p-3 rounded-lg text-sm mb-3">Dalam diskusi kelas, Pak Guru memastikan semua siswa mendapat kesempatan berbicara, termasuk siswa yang pendiam. "Deni, menurutmu bagaimana? Pendapatmu penting buat kita semua."</div><h4 class="font-bold mb-2">Menerapkan Kesetaraan:</h4><ul class="list-disc pl-5 text-sm space-y-1"><li>Beri kesempatan bicara pada semua orang</li><li>Jangan meremehkan pendapat siapapun</li><li>Gunakan bahasa yang inklusif</li></ul>' },
+];
+function buildMateri() {
+  document.getElementById('materiContent').innerHTML = materiList.map((m,i) => `
+    <div class="bg-white rounded-xl p-4 shadow-sm card-hover cursor-pointer" onclick="openMateri(${i})">
+      <div class="flex items-center gap-3">
+        <div class="text-2xl">${m.emoji}</div>
+        <div><div class="font-semibold text-sm text-navy-600">${m.title}</div><div class="text-xs text-navy-400">${m.desc}</div></div>
+      </div>
+    </div>
+  `).join('');
+}
+function openMateri(idx) {
+  const m = materiList[idx];
+  document.getElementById('materiDetailContent').innerHTML = `
+    <div class="bg-white rounded-xl p-5 shadow-sm">
+      <div class="text-3xl mb-2">${m.emoji}</div>
+      <h3 class="text-lg font-bold text-navy-600 mb-3">${m.title}</h3>
+      <div class="text-sm text-navy-600 leading-relaxed">${m.content}</div>
+    </div>`;
+  showPage('materiDetail');
+}
+
+// INTERAKTIF
+function buildInteraktif() {
+  document.getElementById('interaktifContent').innerHTML = `
+    <div class="bg-white rounded-xl p-5 shadow-sm">
+      <h3 class="font-bold text-navy-600 mb-3">🪞 Refleksi Diri</h3>
+      <p class="text-sm text-navy-500 mb-4">Jawab pertanyaan berikut dengan jujur. Tidak ada jawaban benar atau salah!</p>
+      <div id="refleksiQ" class="space-y-4"></div>
+    </div>
+    <div class="bg-white rounded-xl p-5 shadow-sm">
+      <h3 class="font-bold text-navy-600 mb-3">📖 Studi Kasus</h3>
+      <div class="bg-navy-50 p-3 rounded-lg text-sm mb-3">Kamu melihat temanmu diejek di grup chat kelas. Dia terlihat sedih tapi tidak membalas. Apa yang akan kamu lakukan?</div>
+      <div class="space-y-2" id="studyCase"></div>
+    </div>
+    <div class="bg-white rounded-xl p-5 shadow-sm">
+      <h3 class="font-bold text-navy-600 mb-3">💭 Ruang Diskusi</h3>
+      <p class="text-sm text-navy-500 mb-3">Topik: "Bagaimana cara menyampaikan pendapat tanpa menyakiti perasaan orang lain?"</p>
+      <form onsubmit="event.preventDefault();addDiscussion()" class="flex gap-2">
+        <input id="diskusiInput" class="flex-1 border border-navy-200 rounded-lg px-3 py-2 text-sm" placeholder="Tulis pendapatmu...">
+        <button type="submit" class="bg-accent text-white px-4 rounded-lg text-sm font-medium">Kirim</button>
+      </form>
+      <div id="diskusiList" class="mt-3 space-y-2"></div>
+    </div>`;
+  buildRefleksi();
+  buildStudyCase();
+}
+
+const refleksiQuestions = [
+  { q:'Saat berbicara dengan orang baru, aku biasanya...', opts:['Merasa gugup tapi mencoba','Langsung bisa akrab','Cenderung diam dan menunggu','Tergantung situasinya'], feedbacks:['Wajar kok! Yang penting kamu mau mencoba. 💪','Keren! Kemampuan sosialmu bagus!','Tidak apa-apa, setiap orang punya ritme sendiri.','Fleksibilitas itu kekuatan!'] },
+  { q:'Saat temanku bercerita tentang masalahnya, aku...', opts:['Mendengarkan dengan sabar','Langsung memberi solusi','Kadang sulit fokus mendengar','Merasa ikut sedih'], feedbacks:['Mendengarkan adalah bentuk empati yang luar biasa! ❤️','Niatmu baik! Tapi kadang orang butuh didengar dulu.','Itu manusiawi. Coba latih fokus pelan-pelan.','Itu tanda kamu memiliki empati tinggi!'] },
+];
+function buildRefleksi() {
+  document.getElementById('refleksiQ').innerHTML = refleksiQuestions.map((q,qi) => `
+    <div class="border border-navy-100 rounded-lg p-3">
+      <p class="text-sm font-medium text-navy-600 mb-2">${q.q}</p>
+      <div class="space-y-1">${q.opts.map((o,oi) => `<button onclick="refleksiAnswer(${qi},${oi})" class="w-full text-left text-sm px-3 py-2 rounded-lg bg-navy-50 hover:bg-accent/10 hover:text-accent transition">${o}</button>`).join('')}</div>
+      <div id="refleksiFeedback${qi}" class="mt-2 text-sm text-accent font-medium hidden"></div>
+    </div>
+  `).join('');
+}
+function refleksiAnswer(qi, oi) {
+  const fb = document.getElementById(`refleksiFeedback${qi}`);
+  fb.textContent = refleksiQuestions[qi].feedbacks[oi];
+  fb.classList.remove('hidden');
+}
+
+const caseOptions = [
+  { text:'Chat pribadi ke teman yang diejek dan tanyakan perasaannya', feedback:'Respons empatis yang bagus! Kamu menunjukkan kepedulian secara pribadi.' },
+  { text:'Tegur yang mengejek di grup chat', feedback:'Kamu berani membela yang benar! Pastikan gunakan bahasa yang sopan ya.' },
+  { text:'Laporkan ke wali kelas', feedback:'Langkah yang bijak! Melibatkan pihak yang berwenang bisa membantu.' },
+  { text:'Ajak bicara langsung secara tatap muka', feedback:'Komunikasi langsung sering kali lebih efektif dan personal!' },
+];
+function buildStudyCase() {
+  document.getElementById('studyCase').innerHTML = caseOptions.map((c,i) => `
+    <button onclick="caseAnswer(${i})" class="w-full text-left text-sm px-3 py-2 rounded-lg bg-navy-50 hover:bg-accent/10 transition">${c.text}</button>
+  `).join('') + '<div id="caseFeedback" class="mt-2 text-sm text-accent font-medium hidden"></div>';
+}
+function caseAnswer(i) {
+  const fb = document.getElementById('caseFeedback');
+  fb.textContent = '💡 ' + caseOptions[i].feedback;
+  fb.classList.remove('hidden');
+}
+
+let discussions = [];
+function addDiscussion() {
+  const input = document.getElementById('diskusiInput');
+  if (!input.value.trim()) return;
+  discussions.unshift({ text: input.value, time: new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) });
+  input.value = '';
+  renderDiscussions();
+}
+function renderDiscussions() {
+  document.getElementById('diskusiList').innerHTML = discussions.map(d => `
+    <div class="bg-navy-50 rounded-lg p-2 px-3 text-sm"><span class="text-navy-400 text-xs">${d.time}</span> ${d.text}</div>
+  `).join('');
+}
+
+// GAME
+function buildGameMenu() {
+  const games = [
+    { id:'tod', title:'Truth or Dare', emoji:'🎯', desc:'Refleksi diri & tantangan komunikasi' },
+    { id:'quiz', title:'Quiz Reflektif', emoji:'🧠', desc:'Kenali dirimu lebih dalam' },
+    { id:'situasi', title:'Pilihan Situasi', emoji:'🔀', desc:'Latih pengambilan keputusan' },
+    { id:'simulasi', title:'Simulasi Percakapan', emoji:'🗣️', desc:'Latih komunikasi interaktif' },
+  ];
+  document.getElementById('gameMenu').innerHTML = games.map(g => `
+    <div class="bg-white rounded-xl p-4 shadow-sm card-hover cursor-pointer" onclick="startGame('${g.id}')">
+      <div class="flex items-center gap-3">
+        <div class="text-2xl">${g.emoji}</div>
+        <div><div class="font-semibold text-sm text-navy-600">${g.title}</div><div class="text-xs text-navy-400">${g.desc}</div></div>
+        <i data-lucide="play" style="width:18px;height:18px" class="ml-auto text-accent"></i>
+      </div>
+    </div>
+  `).join('');
+}
+
+// TRUTH OR DARE
+const truths = [
+  'Ceritakan saat terakhir kamu merasa benar-benar didengarkan oleh seseorang.',
+  'Apa hal yang paling sulit kamu ungkapkan kepada orang lain?',
+  'Siapa orang yang paling membuatmu merasa nyaman bercerita? Mengapa?',
+  'Pernahkah kamu merasa disalahpahami? Bagaimana perasaanmu?',
+  'Apa kelebihan komunikasi yang kamu miliki?',
+];
+const dares = [
+  'Sampaikan satu hal yang kamu apresiasi dari teman di sebelahmu!',
+  'Ceritakan pendapatmu tentang topik terakhir yang dibahas di kelas dengan percaya diri.',
+  'Berikan pujian tulus kepada seseorang hari ini.',
+  'Praktikkan mendengarkan aktif: tanya kabar temanmu dan dengarkan tanpa menyela.',
+  'Sampaikan satu kritik membangun dengan bahasa yang sopan.',
+];
+function startGame(id) {
+  showPage('gamePlay');
+  if (id === 'tod') buildTod();
+  else if (id === 'quiz') buildQuizReflektif();
+  else if (id === 'situasi') buildSituasi();
+  else if (id === 'simulasi') buildSimulasi();
+}
+function buildTod() {
+  document.getElementById('gamePlayContent').innerHTML = `
+    <div class="bg-white rounded-xl p-5 shadow-sm text-center">
+      <h3 class="font-bold text-navy-600 mb-2">🎯 Truth or Dare</h3>
+      <p class="text-xs text-navy-400 mb-4">Pilih Truth atau Dare dan refleksikan jawabanmu!</p>
+      <div class="flex gap-3 justify-center mb-4">
+        <button onclick="getTod('truth')" class="px-6 py-3 bg-blue-100 text-blue-700 rounded-xl font-semibold card-hover">Truth</button>
+        <button onclick="getTod('dare')" class="px-6 py-3 bg-orange-100 text-orange-700 rounded-xl font-semibold card-hover">Dare</button>
+      </div>
+      <div id="todResult" class="bg-navy-50 rounded-xl p-4 text-sm text-navy-600 min-h-[60px] flex items-center justify-center">Pilih Truth atau Dare!</div>
+    </div>`;
+}
+function getTod(type) {
+  const arr = type === 'truth' ? truths : dares;
+  const item = arr[Math.floor(Math.random() * arr.length)];
+  document.getElementById('todResult').innerHTML = `<div><span class="font-bold text-accent">${type === 'truth' ? '💭 Truth' : '⚡ Dare'}:</span><br>${item}</div>`;
+}
+
+// QUIZ REFLEKTIF
+const quizQs = [
+  { q:'Saat ada konflik dengan teman, hal pertama yang kamu lakukan adalah...', opts:['Diam dan merenung','Langsung bicara','Cerita ke teman lain','Menulis perasaanku'], fbs:['Merenung bisa membantu menenangkan diri.','Langsung bicara menunjukkan keberanian.','Berbagi bisa meringankan beban.','Menulis adalah cara refleksi yang bagus!'] },
+  { q:'Menurutmu, komunikasi yang baik itu...', opts:['Jujur tapi tetap sopan','Selalu setuju biar tidak konflik','Berani mengungkapkan pendapat','Lebih banyak mendengarkan'], fbs:['Jujur dan sopan adalah keseimbangan yang ideal!','Menghindari konflik itu wajar, tapi jangan sampai kehilangan dirimu.','Keberanian mengungkapkan pendapat itu penting!','Mendengarkan adalah inti komunikasi!'] },
+];
+function buildQuizReflektif() {
+  document.getElementById('gamePlayContent').innerHTML = `
+    <div class="bg-white rounded-xl p-5 shadow-sm">
+      <h3 class="font-bold text-navy-600 mb-4">🧠 Quiz Reflektif</h3>
+      <div id="quizContent" class="space-y-4"></div>
+    </div>`;
+  document.getElementById('quizContent').innerHTML = quizQs.map((q,qi) => `
+    <div class="border border-navy-100 rounded-lg p-3">
+      <p class="text-sm font-medium text-navy-600 mb-2">${q.q}</p>
+      <div class="space-y-1">${q.opts.map((o,oi) => `<button onclick="quizAnswer(${qi},${oi})" class="w-full text-left text-sm px-3 py-2 rounded-lg bg-navy-50 hover:bg-accent/10 transition">${o}</button>`).join('')}</div>
+      <div id="quizFb${qi}" class="mt-2 text-sm text-accent font-medium hidden"></div>
+    </div>
+  `).join('');
+}
+function quizAnswer(qi, oi) {
+  const fb = document.getElementById(`quizFb${qi}`);
+  fb.textContent = '💡 ' + quizQs[qi].fbs[oi];
+  fb.classList.remove('hidden');
+}
+
+// SITUASI
+const situasiData = [
+  { skenario:'Kamu diminta presentasi di depan kelas tapi belum siap. Guru sudah memanggil namamu.', opts:[
+    { text:'Maju dan jujur bilang belum sepenuhnya siap', fb:'Kejujuran dan keberanian yang luar biasa! 🌟' },
+    { text:'Minta waktu 2 menit untuk mempersiapkan poin utama', fb:'Strategi yang cerdas! Kamu tahu cara mengelola situasi.' },
+    { text:'Maju dan improvisasi sebaik mungkin', fb:'Fleksibilitas dan keberanianmu patut diacungi jempol! 💪' },
+  ]},
+];
+function buildSituasi() {
+  const s = situasiData[0];
+  document.getElementById('gamePlayContent').innerHTML = `
+    <div class="bg-white rounded-xl p-5 shadow-sm">
+      <h3 class="font-bold text-navy-600 mb-2">🔀 Pilihan Situasi</h3>
+      <div class="bg-navy-50 p-3 rounded-lg text-sm mb-4">${s.skenario}</div>
+      <p class="text-xs text-navy-400 mb-2">Apa yang akan kamu lakukan?</p>
+      <div class="space-y-2">${s.opts.map((o,i) => `<button onclick="situasiAnswer(${i})" class="w-full text-left text-sm px-3 py-2 rounded-lg bg-navy-50 hover:bg-accent/10 transition">${o.text}</button>`).join('')}</div>
+      <div id="situasiFb" class="mt-3 text-sm text-accent font-medium hidden"></div>
+    </div>`;
+}
+function situasiAnswer(i) {
+  const fb = document.getElementById('situasiFb');
+  fb.textContent = situasiData[0].opts[i].fb;
+  fb.classList.remove('hidden');
+}
+
+// SIMULASI
+function buildSimulasi() {
+  document.getElementById('gamePlayContent').innerHTML = `
+    <div class="bg-white rounded-xl p-5 shadow-sm">
+      <h3 class="font-bold text-navy-600 mb-2">🗣️ Simulasi Percakapan</h3>
+      <p class="text-xs text-navy-400 mb-3">Latih cara merespons dalam situasi nyata.</p>
+      <div id="simChat" class="space-y-2 mb-3">
+        <div class="bg-navy-50 rounded-lg p-2 px-3 text-sm max-w-[80%]"><strong>Teman:</strong> "Eh, menurut kamu aku tuh orangnya gimana sih? Jujur aja."</div>
+      </div>
+      <p class="text-xs text-navy-500 mb-2">Pilih responsmu:</p>
+      <div class="space-y-2">
+        <button onclick="simReply(0)" class="w-full text-left text-sm px-3 py-2 rounded-lg bg-navy-50 hover:bg-accent/10 transition">"Menurut aku kamu orangnya baik, tapi kadang agak sensitif. Tapi itu wajar kok."</button>
+        <button onclick="simReply(1)" class="w-full text-left text-sm px-3 py-2 rounded-lg bg-navy-50 hover:bg-accent/10 transition">"Kamu tuh asyik orangnya! Aku senang bisa temenan sama kamu."</button>
+        <button onclick="simReply(2)" class="w-full text-left text-sm px-3 py-2 rounded-lg bg-navy-50 hover:bg-accent/10 transition">"Hmm, kamu mau dengar yang jujur banget atau yang enak didengar?"</button>
+      </div>
+      <div id="simFb" class="mt-3 text-sm hidden"></div>
+    </div>`;
+}
+const simFbs = [
+  { reply:'"Menurut aku kamu orangnya baik, tapi kadang agak sensitif. Tapi itu wajar kok."', fb:'Kamu bisa jujur dengan tetap menjaga perasaan! Ini contoh keterbukaan yang seimbang. 👏', next:'"Makasih ya udah jujur. Aku emang kadang ngerasa gitu sih..."' },
+  { reply:'"Kamu tuh asyik orangnya! Aku senang bisa temenan sama kamu."', fb:'Respons positif yang bikin orang senang! Sikap positif ini bagus untuk membangun hubungan. 😊', next:'"Ah masa sih? Makasih ya! Kamu juga kok!"' },
+  { reply:'"Hmm, kamu mau dengar yang jujur banget atau yang enak didengar?"', fb:'Pertanyaan yang bijak! Kamu menghormati kesiapan orang lain sebelum memberi kejujuran. 🤔', next:'"Yang jujur dong! Aku kan nanya beneran..."' },
+];
+function simReply(i) {
+  const chat = document.getElementById('simChat');
+  const fb = document.getElementById('simFb');
+  chat.innerHTML += `<div class="bg-accent/10 rounded-lg p-2 px-3 text-sm max-w-[80%] ml-auto text-right">${simFbs[i].reply}</div>`;
+  chat.innerHTML += `<div class="bg-navy-50 rounded-lg p-2 px-3 text-sm max-w-[80%]"><strong>Teman:</strong> ${simFbs[i].next}</div>`;
+  fb.innerHTML = `<div class="bg-green-50 text-green-700 p-3 rounded-lg">💡 ${simFbs[i].fb}</div>`;
+  fb.classList.remove('hidden');
+}
+
+// JURUSAN
+const jurusanQs = [
+  { q:'Mata pelajaran apa yang paling kamu sukai?', opts:['Matematika/IPA','Bahasa & Sastra','Seni & Kreativitas','Ekonomi & Bisnis','Olahraga & Kesehatan'] },
+  { q:'Di waktu luang, kamu lebih suka...', opts:['Membaca buku/riset','Menulis atau bercerita','Menggambar/desain','Berjualan/mengatur keuangan','Olahraga/aktivitas fisik'] },
+  { q:'Kamu lebih nyaman bekerja...', opts:['Sendiri dengan fokus tinggi','Dalam tim kecil','Dengan banyak orang','Memimpin sebuah proyek','Di luar ruangan'] },
+  { q:'Hal yang paling membuatmu bersemangat...', opts:['Memecahkan masalah rumit','Menyampaikan ide lewat kata-kata','Membuat sesuatu yang indah','Melihat usaha berhasil','Bergerak dan aktif'] },
+];
+const jurusanResults = [
+  { title:'Sains & Teknologi', desc:'Cocok untuk: Teknik, Kedokteran, Farmasi, IT, Matematika', emoji:'🔬' },
+  { title:'Ilmu Sosial & Humaniora', desc:'Cocok untuk: Hukum, Psikologi, Sastra, Komunikasi, Pendidikan', emoji:'📝' },
+  { title:'Seni & Desain', desc:'Cocok untuk: DKV, Arsitektur, Seni Rupa, Film, Fashion', emoji:'🎨' },
+  { title:'Bisnis & Ekonomi', desc:'Cocok untuk: Manajemen, Akuntansi, Ekonomi, Marketing', emoji:'💼' },
+  { title:'Kesehatan & Olahraga', desc:'Cocok untuk: Keperawatan, Fisioterapi, Ilmu Olahraga, Gizi', emoji:'🏃' },
+];
+let jurusanAnswers = [];
+function buildJurusan() {
+  jurusanAnswers = [];
+  document.getElementById('jurusanContent').innerHTML = `
+    <div class="bg-white rounded-xl p-5 shadow-sm">
+      <p class="text-sm text-navy-500 mb-4">Jawab 4 pertanyaan berikut untuk mendapatkan rekomendasi jurusan yang sesuai dengan minatmu!</p>
+      <div id="jurusanQContainer"></div>
+    </div>`;
+  renderJurusanQ(0);
+}
+function renderJurusanQ(idx) {
+  if (idx >= jurusanQs.length) { showJurusanResult(); return; }
+  const q = jurusanQs[idx];
+  document.getElementById('jurusanQContainer').innerHTML = `
+    <p class="text-sm font-medium text-navy-600 mb-3">${idx+1}. ${q.q}</p>
+    <div class="space-y-2">${q.opts.map((o,i) => `<button onclick="jurusanPick(${idx},${i})" class="w-full text-left text-sm px-3 py-2 rounded-lg bg-navy-50 hover:bg-accent/10 transition">${o}</button>`).join('')}</div>
+    <div class="mt-3 text-xs text-navy-300">Pertanyaan ${idx+1} dari ${jurusanQs.length}</div>`;
+}
+function jurusanPick(qIdx, optIdx) {
+  jurusanAnswers.push(optIdx);
+  renderJurusanQ(qIdx + 1);
+}
+function showJurusanResult() {
+  const counts = [0,0,0,0,0];
+  jurusanAnswers.forEach(a => counts[a]++);
+  const maxIdx = counts.indexOf(Math.max(...counts));
+  const r = jurusanResults[maxIdx];
+  document.getElementById('jurusanQContainer').innerHTML = `
+    <div class="text-center">
+      <div class="text-4xl mb-2">${r.emoji}</div>
+      <h4 class="font-bold text-navy-600 text-lg mb-1">${r.title}</h4>
+      <p class="text-sm text-navy-500 mb-4">${r.desc}</p>
+      <p class="text-xs text-navy-400 mb-4">Ini hanya rekomendasi awal. Konsultasikan lebih lanjut dengan guru BK untuk eksplorasi yang lebih mendalam!</p>
+      <button onclick="buildJurusan()" class="bg-accent text-white px-6 py-2 rounded-lg text-sm font-medium">Coba Lagi</button>
+    </div>`;
+}
+
+// KONSELOR
+function buildKonselor() {
+  document.getElementById('konselorContent').innerHTML = `
+    <div class="bg-white rounded-xl p-5 shadow-sm mb-4">
+      <h3 class="font-semibold text-navy-600 mb-3">👩‍🏫 Guru BK Kami</h3>
+      <div class="flex items-center gap-3 p-3 bg-navy-50 rounded-lg">
+        <div class="w-12 h-12 bg-navy-200 rounded-full flex items-center justify-center text-xl">👩‍🏫</div>
+        <div>
+          <div class="font-medium text-sm text-navy-600">Ibu Konselor</div>
+          <div class="text-xs text-navy-400">Senin - Jumat, 07:00 - 15:00</div>
+          <div class="text-xs text-accent">Ruang BK Lantai 2</div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-white rounded-xl p-5 shadow-sm">
+      <h3 class="font-semibold text-navy-600 mb-3">📝 Form Konsultasi</h3>
+      <form onsubmit="event.preventDefault();showToast('Pesan berhasil dikirim! Guru BK akan menghubungimu. ✅')" class="space-y-3">
+        <div><label class="text-xs font-medium text-navy-500 block mb-1" for="nama">Nama</label><input id="nama" class="w-full border border-navy-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30" placeholder="Nama lengkap"></div>
+        <div><label class="text-xs font-medium text-navy-500 block mb-1" for="kelas">Kelas</label><input id="kelas" class="w-full border border-navy-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30" placeholder="Contoh: XII IPA 1"></div>
+        <div><label class="text-xs font-medium text-navy-500 block mb-1" for="topik">Topik Konsultasi</label><select id="topik" class="w-full border border-navy-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30"><option>Akademik</option><option>Pribadi/Sosial</option><option>Karir</option><option>Lainnya</option></select></div>
+        <div><label class="text-xs font-medium text-navy-500 block mb-1" for="pesan">Pesan</label><textarea id="pesan" rows="3" class="w-full border border-navy-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30" placeholder="Ceritakan keluhanmu..."></textarea></div>
+        <button type="submit" class="w-full bg-accent text-white py-2.5 rounded-lg text-sm font-semibold">Kirim Pesan</button>
+      </form>
+    </div>`;
+}
+
+// TOAST
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+// INIT
+lucide.createIcons();
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9f42da46a6feea7a',t:'MTc3NzUxMzM3Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
